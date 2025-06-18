@@ -34,6 +34,7 @@ def ingestresume(req: func.HttpRequest) -> func.HttpResponse:
         # Extract FileUrl and FileContent from request
         file_url = req_body.get("FileUrl", "")
         file_content = req_body.get("FileContent", "")
+        external = req_body.get("External", False)  # Default to False if not provided
         
         if not file_content:
             return func.HttpResponse(
@@ -62,12 +63,13 @@ def ingestresume(req: func.HttpRequest) -> func.HttpResponse:
         doc.close()
         
         # Upload to Cosmos DB for vectorization
-        cosmos_result = upload_to_cosmos_db(file_url, extracted_text)
+        cosmos_result = upload_to_cosmos_db(file_url, extracted_text, external)
         
         return func.HttpResponse(
             json.dumps({
                 "status": "success",
                 "file_url": file_url,
+                "external": external,
                 "extracted_text_length": len(extracted_text),
                 "cosmos_document_id": cosmos_result.get("id"),
                 "candidate_info": {
@@ -221,7 +223,7 @@ def extract_resume_data_with_ai(resume_text: str) -> dict:
             "searchable_keywords": []
         }
 
-def upload_to_cosmos_db(file_url: str, resume_text: str) -> dict:
+def upload_to_cosmos_db(file_url: str, resume_text: str, external: bool) -> dict:
     """
     Upload resume text and file URL to Cosmos DB for vectorization
     """
@@ -293,6 +295,7 @@ def upload_to_cosmos_db(file_url: str, resume_text: str) -> dict:
         document = {
             "id": str(uuid.uuid4()),
             "partition_key": "active",
+            "external": external,
             "personalInfo": {
                 "name": personal_info.get("name", ""),
                 "email": personal_info.get("email", ""),
