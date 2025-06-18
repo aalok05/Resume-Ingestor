@@ -5,3 +5,4 @@
 azure-functions
 pymupdf
 azure-cosmos
+openai
