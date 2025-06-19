@@ -5,7 +5,7 @@ A serverless Azure Function that extracts text from PDF resumes, processes them 
 ## 🏗️ Architecture
 
 ```
-PDF Upload (SharePoint) → Azure Function → AI Processing (Azure OpenAI) → Cosmos DB Storage
+PDF Upload → Azure Function → AI Processing (Azure OpenAI) → Cosmos DB Storage
 ```
 
 ## ✨ Features
@@ -317,68 +317,9 @@ Invoke-RestMethod -Uri "http://localhost:7071/api/ingestresume" -Method POST -Bo
 - Check PDF file is not corrupted
 - Verify PDF is not password protected
 
-### Logging
 
-Enable detailed logging by setting in `host.json`:
-
-```json
-{
-  "version": "2.0",
-  "logging": {
-    "applicationInsights": {
-      "samplingSettings": {
-        "isEnabled": true,
-        "excludedTypes": "Request"
-      }
-    },
-    "logLevel": {
-      "default": "Information"
-    }
-  }
-}
-```
-
-## 📊 Monitoring
-
-### Key Metrics to Monitor
-
-- Function execution time
-- Azure OpenAI token usage
-- Cosmos DB RU consumption
-- Error rates and types
-
-### Application Insights Queries
-
-```kql
-// Function execution times
-traces
-| where message contains "Successfully uploaded resume"
-| summarize avg(duration) by bin(timestamp, 1h)
-
-// Error tracking
-exceptions
-| where outerMessage contains "Error processing PDF"
-| summarize count() by tostring(outerMessage)
-```
-
-## 🛡️ Security Best Practices
-
-1. **Environment Variables**: Never commit secrets to source control
-2. **Authentication**: Use managed identity when possible
-3. **Network**: Configure VNet integration for production
-4. **Access Control**: Implement proper RBAC for Azure resources
-5. **Monitoring**: Set up alerts for suspicious activity
-
-## 📝 License
-
-[Add your license information here]
-
-## 🤝 Contributing
-
-[Add contribution guidelines here]
 
 ## 📞 Support
 
 For issues and questions:
 - Create an issue in this repository
-- Contact: [your-contact-info]
